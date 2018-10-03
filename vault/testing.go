@@ -27,6 +27,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/hashicorp/vault/helper/consts"
+
 	log "github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/copystructure"
 
@@ -410,7 +412,8 @@ func TestAddTestPlugin(t testing.T, c *Core, name, testFunc string, env []string
 	c.pluginCatalog.directory = fullPath
 
 	args := []string{fmt.Sprintf("--test.run=%s", testFunc)}
-	err = c.pluginCatalog.Set(context.Background(), name, fileName, args, env, sum)
+	// TODO need to put a more realistic plugin type here
+	err = c.pluginCatalog.Set(context.Background(), name, consts.PluginTypeUnknown, fileName, args, env, sum)
 	if err != nil {
 		t.Fatal(err)
 	}

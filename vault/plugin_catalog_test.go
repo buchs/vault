@@ -24,7 +24,7 @@ func TestPluginCatalog_CRUD(t *testing.T) {
 	core.pluginCatalog.directory = sym
 
 	// Get builtin plugin
-	p, err := core.pluginCatalog.Get(context.Background(), "mysql-database-plugin")
+	p, err := core.pluginCatalog.Get(context.Background(), "mysql-database-plugin", builtinplugins.PluginTypeDatabase)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
@@ -58,7 +58,7 @@ func TestPluginCatalog_CRUD(t *testing.T) {
 	}
 
 	// Get the plugin
-	p, err = core.pluginCatalog.Get(context.Background(), "mysql-database-plugin")
+	p, err = core.pluginCatalog.Get(context.Background(), "mysql-database-plugin", builtinplugins.PluginTypeDatabase)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
@@ -83,7 +83,7 @@ func TestPluginCatalog_CRUD(t *testing.T) {
 	}
 
 	// Get builtin plugin
-	p, err = core.pluginCatalog.Get(context.Background(), "mysql-database-plugin")
+	p, err = core.pluginCatalog.Get(context.Background(), "mysql-database-plugin", builtinplugins.PluginTypeDatabase)
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}

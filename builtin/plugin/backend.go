@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	uuid "github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
 	bplugin "github.com/hashicorp/vault/logical/plugin"
@@ -41,10 +42,15 @@ func Backend(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	var b backend
 
 	name := conf.Config["plugin_name"]
+	pluginType, err := consts.ParsePluginType(conf.Config["plugin_type"])
+	if err != nil {
+		return nil, err
+	}
+
 	sys := conf.System
 
 	// NewBackend with isMetadataMode set to true
-	raw, err := bplugin.NewBackend(ctx, name, sys, conf.Logger, true)
+	raw, err := bplugin.NewBackend(ctx, name, pluginType, sys, conf, true)
 	if err != nil {
 		return nil, err
 	}
@@ -93,11 +99,15 @@ func (b *backend) reloadBackend(ctx context.Context) error {
 // startBackend starts a plugin backend
 func (b *backend) startBackend(ctx context.Context) error {
 	pluginName := b.config.Config["plugin_name"]
+	pluginType, err := consts.ParsePluginType(b.config.Config["plugin_type"])
+	if err != nil {
+		return err
+	}
 
 	// Ensure proper cleanup of the backend (i.e. call client.Kill())
 	b.Backend.Cleanup(ctx)
 
-	nb, err := bplugin.NewBackend(ctx, pluginName, b.config.System, b.config.Logger, false)
+	nb, err := bplugin.NewBackend(ctx, pluginName, pluginType, b.config.System, b.config, false)
 	if err != nil {
 		return err
 	}

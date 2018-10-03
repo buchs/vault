@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/jsonutil"
 	"github.com/hashicorp/vault/helper/namespace"
@@ -1114,9 +1115,10 @@ func (c *Core) newLogicalBackend(ctx context.Context, entry *MountEntry, sysView
 	if alias, ok := mountAliases[t]; ok {
 		t = alias
 	}
+
 	f, ok := c.logicalBackends[t]
 	if !ok {
-		return nil, fmt.Errorf("unknown backend type: %q", t)
+		f = plugin.Factory
 	}
 
 	// Set up conf to pass in plugin_name
@@ -1124,9 +1126,8 @@ func (c *Core) newLogicalBackend(ctx context.Context, entry *MountEntry, sysView
 	for k, v := range entry.Options {
 		conf[k] = v
 	}
-	if entry.Config.PluginName != "" {
-		conf["plugin_name"] = entry.Config.PluginName
-	}
+	conf["plugin_name"] = t
+	conf["plugin_type"] = consts.PluginTypeSecrets.String()
 
 	backendLogger := c.baseLogger.Named(fmt.Sprintf("secrets.%s.%s", t, entry.Accessor))
 	c.AddLogger(backendLogger)

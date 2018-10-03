@@ -1,50 +1,69 @@
 package builtinplugins
 
 import (
-	"github.com/hashicorp/vault/plugins/database/cassandra"
-	"github.com/hashicorp/vault/plugins/database/hana"
-	"github.com/hashicorp/vault/plugins/database/mongodb"
-	"github.com/hashicorp/vault/plugins/database/mssql"
-	"github.com/hashicorp/vault/plugins/database/mysql"
-	"github.com/hashicorp/vault/plugins/database/postgresql"
-	"github.com/hashicorp/vault/plugins/helper/database/credsutil"
+	"strings"
+
+	"github.com/hashicorp/vault/helper/consts"
 )
 
 // BuiltinFactory is the func signature that should be returned by
 // the plugin's New() func.
 type BuiltinFactory func() (interface{}, error)
 
-var plugins = map[string]BuiltinFactory{
-	// These four plugins all use the same mysql implementation but with
-	// different username settings passed by the constructor.
-	"mysql-database-plugin":        mysql.New(mysql.MetadataLen, mysql.MetadataLen, mysql.UsernameLen),
-	"mysql-aurora-database-plugin": mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-	"mysql-rds-database-plugin":    mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-	"mysql-legacy-database-plugin": mysql.New(credsutil.NoneLength, mysql.LegacyMetadataLen, mysql.LegacyUsernameLen),
-
-	"postgresql-database-plugin": postgresql.New,
-	"mssql-database-plugin":      mssql.New,
-	"cassandra-database-plugin":  cassandra.New,
-	"mongodb-database-plugin":    mongodb.New,
-	"hana-database-plugin":       hana.New,
+func toBuiltinFactory(ifc interface{}) BuiltinFactory {
+	return func() (interface{}, error) {
+		return ifc, nil
+	}
 }
 
 // Get returns the BuiltinFactory func for a particular backend plugin
-// from the plugins map.
-func Get(name string) (BuiltinFactory, bool) {
-	f, ok := plugins[name]
-	return f, ok
+// from the databasePlugins map.
+func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
+	switch pluginType {
+	case consts.PluginTypeCredential:
+		f, ok := credentialBackends[name]
+		return toBuiltinFactory(f), ok
+	case consts.PluginTypeSecrets:
+		f, ok := logicalBackends[name]
+		return toBuiltinFactory(f), ok
+	case consts.PluginTypeDatabase:
+		f, ok := databasePlugins[name]
+		return f, ok
+	default:
+		return nil, false
+	}
 }
 
-// Keys returns the list of plugin names that are considered builtin plugins.
-func Keys() []string {
-	keys := make([]string, len(plugins))
-
-	i := 0
-	for k := range plugins {
-		keys[i] = k
-		i++
+// Keys returns the list of plugin names that are considered builtin databasePlugins.
+func Keys(pluginType consts.PluginType) []string {
+	var keys []string
+	switch pluginType {
+	case consts.PluginTypeDatabase:
+		for key := range databasePlugins {
+			keys = append(keys, key)
+		}
+	case consts.PluginTypeCredential:
+		for key := range credentialBackends {
+			keys = append(keys, key)
+		}
+	case consts.PluginTypeSecrets:
+		for key := range logicalBackends {
+			keys = append(keys, key)
+		}
 	}
-
 	return keys
+}
+
+// ParseKey returns a key's:
+//   - Name
+//   - PluginType
+func ParseKey(key string) (string, consts.PluginType, error) {
+	fields := strings.Split(key, "-")
+	name := fields[0]
+	strType := fields[1]
+	pluginType, err := consts.ParsePluginType(strType)
+	if err != nil {
+		return "", consts.PluginTypeUnknown, err
+	}
+	return name, pluginType, nil
 }

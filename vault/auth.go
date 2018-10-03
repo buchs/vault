@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/jsonutil"
 	"github.com/hashicorp/vault/helper/namespace"
@@ -713,7 +714,7 @@ func (c *Core) newCredentialBackend(ctx context.Context, entry *MountEntry, sysV
 
 	f, ok := c.credentialBackends[t]
 	if !ok {
-		return nil, fmt.Errorf("unknown backend type: %q", t)
+		f = plugin.Factory
 	}
 
 	// Set up conf to pass in plugin_name
@@ -721,9 +722,8 @@ func (c *Core) newCredentialBackend(ctx context.Context, entry *MountEntry, sysV
 	for k, v := range entry.Options {
 		conf[k] = v
 	}
-	if entry.Config.PluginName != "" {
-		conf["plugin_name"] = entry.Config.PluginName
-	}
+	conf["plugin_name"] = t
+	conf["plugin_type"] = consts.PluginTypeCredential.String()
 
 	authLogger := c.baseLogger.Named(fmt.Sprintf("auth.%s.%s", t, entry.Accessor))
 	c.AddLogger(authLogger)

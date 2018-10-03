@@ -19,8 +19,8 @@ import (
 
 	"github.com/hashicorp/errwrap"
 	log "github.com/hashicorp/go-hclog"
-	memdb "github.com/hashicorp/go-memdb"
-	uuid "github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/go-memdb"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/vault/helper/compressutil"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/identity"
@@ -241,8 +241,29 @@ func (b *SystemBackend) handleTidyLeases(ctx context.Context, req *logical.Reque
 	return logical.RespondWithStatusCode(resp, req, http.StatusAccepted)
 }
 
+// TODO move this somewhere else in this file
+func validatePluginType(pluginType string) (consts.PluginType, error) {
+	if pluginType == "" {
+		return consts.PluginTypeUnknown, errors.New("plugin type not present in path")
+	}
+	if strings.HasSuffix(pluginType, "/") {
+		// Strip the slash that was appended to the type.
+		pluginType = pluginType[:len(pluginType)-1]
+	}
+	strongType, err := consts.ParsePluginType(pluginType)
+	if err != nil {
+		return consts.PluginTypeUnknown, fmt.Errorf("%s is not a supported path", pluginType)
+	}
+	return strongType, nil
+}
+
 func (b *SystemBackend) handlePluginCatalogList(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	plugins, err := b.Core.pluginCatalog.List(ctx)
+	pluginType, err := validatePluginType(d.Get("type").(string))
+	if err != nil {
+		return nil, err
+	}
+
+	plugins, err := b.Core.pluginCatalog.List(ctx, pluginType)
 	if err != nil {
 		return nil, err
 	}
@@ -254,6 +275,11 @@ func (b *SystemBackend) handlePluginCatalogUpdate(ctx context.Context, req *logi
 	pluginName := d.Get("name").(string)
 	if pluginName == "" {
 		return logical.ErrorResponse("missing plugin name"), nil
+	}
+
+	pluginType, err := validatePluginType(d.Get("type").(string))
+	if err != nil {
+		return nil, err
 	}
 
 	sha256 := d.Get("sha256").(string)
@@ -288,7 +314,7 @@ func (b *SystemBackend) handlePluginCatalogUpdate(ctx context.Context, req *logi
 		return logical.ErrorResponse("Could not decode SHA-256 value from Hex"), err
 	}
 
-	err = b.Core.pluginCatalog.Set(ctx, pluginName, parts[0], args, env, sha256Bytes)
+	err = b.Core.pluginCatalog.Set(ctx, pluginName, pluginType, parts[0], args, env, sha256Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -301,7 +327,13 @@ func (b *SystemBackend) handlePluginCatalogRead(ctx context.Context, req *logica
 	if pluginName == "" {
 		return logical.ErrorResponse("missing plugin name"), nil
 	}
-	plugin, err := b.Core.pluginCatalog.Get(ctx, pluginName)
+
+	pluginType, err := validatePluginType(d.Get("type").(string))
+	if err != nil {
+		return nil, err
+	}
+
+	plugin, err := b.Core.pluginCatalog.Get(ctx, pluginName, pluginType)
 	if err != nil {
 		return nil, err
 	}
