@@ -142,11 +142,6 @@ func (c *Core) enableCredentialInternal(ctx context.Context, entry *MountEntry, 
 	var backend logical.Backend
 	// Create the new backend
 	sysView := c.mountEntrySysView(entry)
-	conf := make(map[string]string)
-	if entry.Config.PluginName != "" {
-		conf["plugin_name"] = entry.Config.PluginName
-	}
-	// Create the new backend
 	backend, err = c.newCredentialBackend(ctx, entry, sysView, view)
 	if err != nil {
 		return err
@@ -157,7 +152,7 @@ func (c *Core) enableCredentialInternal(ctx context.Context, entry *MountEntry, 
 
 	// Check for the correct backend type
 	backendType := backend.Type()
-	if entry.Type == "plugin" && backendType != logical.TypeCredential {
+	if backendType != logical.TypeCredential && entry.Type != "token" {
 		return fmt.Errorf("cannot mount %q of type %q as an auth backend", entry.Config.PluginName, backendType)
 	}
 
@@ -601,21 +596,10 @@ func (c *Core) setupCredentials(ctx context.Context) error {
 
 		// Initialize the backend
 		sysView := c.mountEntrySysView(entry)
-		conf := make(map[string]string)
-		if entry.Config.PluginName != "" {
-			conf["plugin_name"] = entry.Config.PluginName
-		}
 
 		backend, err = c.newCredentialBackend(ctx, entry, sysView, view)
 		if err != nil {
 			c.logger.Error("failed to create credential entry", "path", entry.Path, "error", err)
-			if entry.Type == "plugin" {
-				// If we encounter an error instantiating the backend due to an error,
-				// skip backend initialization but register the entry to the mount table
-				// to preserve storage and path.
-				c.logger.Warn("skipping plugin-based credential entry", "path", entry.Path)
-				goto ROUTER_MOUNT
-			}
 			return errLoadAuthFailed
 		}
 		if backend == nil {
@@ -625,7 +609,7 @@ func (c *Core) setupCredentials(ctx context.Context) error {
 		{
 			// Check for the correct backend type
 			backendType := backend.Type()
-			if entry.Type == "plugin" && backendType != logical.TypeCredential {
+			if backendType != logical.TypeCredential && entry.Type != "token" {
 				return fmt.Errorf("cannot mount %q of type %q as an auth backend", entry.Config.PluginName, backendType)
 			}
 
@@ -640,7 +624,6 @@ func (c *Core) setupCredentials(ctx context.Context) error {
 			backend = nil
 		}
 
-	ROUTER_MOUNT:
 		// Mount the backend
 		path := credentialRoutePrefix + entry.Path
 		err = c.router.Mount(backend, path, entry, view)

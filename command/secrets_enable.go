@@ -238,8 +238,6 @@ func (c *SecretsEnableCommand) Run(args []string) int {
 			DefaultLeaseTTL: c.flagDefaultLeaseTTL.String(),
 			MaxLeaseTTL:     c.flagMaxLeaseTTL.String(),
 			ForceNoCache:    c.flagForceNoCache,
-			// TODO should I just strip this field out altogether?
-			//PluginName:      c.flagPluginName,
 		},
 		Options: c.flagOptions,
 	}

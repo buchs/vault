@@ -218,8 +218,6 @@ func (c *AuthEnableCommand) Run(args []string) int {
 		Config: api.AuthConfigInput{
 			DefaultLeaseTTL: c.flagDefaultLeaseTTL.String(),
 			MaxLeaseTTL:     c.flagMaxLeaseTTL.String(),
-			// TODO should I just strip this field out altogether?
-			//PluginName:      c.flagPluginName,
 		},
 		Options: c.flagOptions,
 	}

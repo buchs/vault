@@ -416,10 +416,6 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 
 	var backend logical.Backend
 	sysView := c.mountEntrySysView(entry)
-	conf := make(map[string]string)
-	if entry.Config.PluginName != "" {
-		conf["plugin_name"] = entry.Config.PluginName
-	}
 
 	// Consider having plugin name under entry.Options
 	backend, err = c.newLogicalBackend(ctx, entry, sysView, view)
@@ -432,8 +428,10 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 
 	// Check for the correct backend type
 	backendType := backend.Type()
-	if entry.Type == "plugin" && backendType != logical.TypeLogical {
-		return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Config.PluginName, backendType)
+	if backendType != logical.TypeLogical {
+		if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" {
+			return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Config.PluginName, backendType)
+		}
 	}
 
 	addPathCheckers(c, entry, backend, viewPath)
@@ -1028,13 +1026,6 @@ func (c *Core) setupMounts(ctx context.Context) error {
 		backend, err = c.newLogicalBackend(ctx, entry, sysView, view)
 		if err != nil {
 			c.logger.Error("failed to create mount entry", "path", entry.Path, "error", err)
-			if entry.Type == "plugin" {
-				// If we encounter an error instantiating the backend due to an error,
-				// skip backend initialization but register the entry to the mount table
-				// to preserve storage and path.
-				c.logger.Warn("skipping plugin-based mount entry", "path", entry.Path)
-				goto ROUTER_MOUNT
-			}
 			return errLoadMountsFailed
 		}
 		if backend == nil {
@@ -1044,8 +1035,11 @@ func (c *Core) setupMounts(ctx context.Context) error {
 		{
 			// Check for the correct backend type
 			backendType := backend.Type()
-			if entry.Type == "plugin" && backendType != logical.TypeLogical {
-				return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Config.PluginName, backendType)
+
+			if backendType != logical.TypeLogical {
+				if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" {
+					return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Config.PluginName, backendType)
+				}
 			}
 
 			addPathCheckers(c, entry, backend, barrierPath)
@@ -1061,7 +1055,6 @@ func (c *Core) setupMounts(ctx context.Context) error {
 			backend = nil
 		}
 
-	ROUTER_MOUNT:
 		// Mount the backend
 		err = c.router.Mount(backend, entry.Path, entry, view)
 		if err != nil {
