@@ -241,24 +241,8 @@ func (b *SystemBackend) handleTidyLeases(ctx context.Context, req *logical.Reque
 	return logical.RespondWithStatusCode(resp, req, http.StatusAccepted)
 }
 
-// TODO move this somewhere else in this file
-func validatePluginType(pluginType string) (consts.PluginType, error) {
-	if pluginType == "" {
-		return consts.PluginTypeUnknown, errors.New("plugin type not present in path")
-	}
-	if strings.HasSuffix(pluginType, "/") {
-		// Strip the slash that was appended to the type.
-		pluginType = pluginType[:len(pluginType)-1]
-	}
-	strongType, err := consts.ParsePluginType(pluginType)
-	if err != nil {
-		return consts.PluginTypeUnknown, fmt.Errorf("%s is not a supported path", pluginType)
-	}
-	return strongType, nil
-}
-
 func (b *SystemBackend) handlePluginCatalogList(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
-	pluginType, err := validatePluginType(d.Get("type").(string))
+	pluginType, err := getValidatedPluginType(d.Get("type").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +261,7 @@ func (b *SystemBackend) handlePluginCatalogUpdate(ctx context.Context, req *logi
 		return logical.ErrorResponse("missing plugin name"), nil
 	}
 
-	pluginType, err := validatePluginType(d.Get("type").(string))
+	pluginType, err := getValidatedPluginType(d.Get("type").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +312,7 @@ func (b *SystemBackend) handlePluginCatalogRead(ctx context.Context, req *logica
 		return logical.ErrorResponse("missing plugin name"), nil
 	}
 
-	pluginType, err := validatePluginType(d.Get("type").(string))
+	pluginType, err := getValidatedPluginType(d.Get("type").(string))
 	if err != nil {
 		return nil, err
 	}
@@ -366,6 +350,10 @@ func (b *SystemBackend) handlePluginCatalogDelete(ctx context.Context, req *logi
 	pluginName := d.Get("name").(string)
 	if pluginName == "" {
 		return logical.ErrorResponse("missing plugin name"), nil
+	}
+	// Simply validate the inbound path to make sure it's not something unexpected like "foo".
+	if _, err := getValidatedPluginType(d.Get("type").(string)); err != nil {
+		return nil, err
 	}
 	err := b.Core.pluginCatalog.Delete(ctx, pluginName)
 	if err != nil {
@@ -2950,6 +2938,21 @@ func checkListingVisibility(visibility ListingVisibilityType) error {
 	return nil
 }
 
+func getValidatedPluginType(pluginType string) (consts.PluginType, error) {
+	if pluginType == "" {
+		return consts.PluginTypeUnknown, errors.New("plugin type not present in path")
+	}
+	if strings.HasSuffix(pluginType, "/") {
+		// Strip the slash that was appended to the type.
+		pluginType = pluginType[:len(pluginType)-1]
+	}
+	strongType, err := consts.ParsePluginType(pluginType)
+	if err != nil {
+		return consts.PluginTypeUnknown, fmt.Errorf("%s is not a supported path", pluginType)
+	}
+	return strongType, nil
+}
+
 const sysHelpRoot = `
 The system backend is built-in to Vault and cannot be remounted or
 unmounted. It contains the paths that are used to configure Vault itself
@@ -3511,6 +3514,10 @@ This path responds to the following HTTP methods.
 	},
 	"plugin-catalog_name": {
 		"The name of the plugin",
+		"",
+	},
+	"plugin-catalog_type": {
+		"The type of the plugin, may be auth, secret, or database",
 		"",
 	},
 	"plugin-catalog_sha-256": {

@@ -24,9 +24,6 @@ var (
 	ErrPluginNotFound         = errors.New("plugin not found in the catalog")
 )
 
-// TODO need to go through this workflow and update the code and docs:
-// https://www.vaultproject.io/api/system/plugins-catalog.html
-
 // PluginCatalog keeps a record of plugins known to vault. External plugins need
 // to be registered to the catalog before they can be used in backends. Builtin
 // plugins are automatically detected and included in the catalog.
@@ -59,7 +56,6 @@ func (c *PluginCatalog) Get(ctx context.Context, name string, pluginType consts.
 
 	// If the directory isn't set only look for builtin plugins.
 	if c.directory != "" {
-		// TODO do we need to worry about plugin types here? Or do plugins have to have unique names so we're cool?
 		// Look for external plugins in the barrier
 		out, err := c.catalogView.Get(ctx, name)
 		if err != nil {
@@ -125,7 +121,7 @@ func (c *PluginCatalog) Set(ctx context.Context, name string, pluginType consts.
 
 	entry := &pluginutil.PluginRunner{
 		Name:    name,
-		Type:    pluginType.String(), // TODO how to migrate this for pre-existing plugins, for the upgrade path? or is this even really needed?
+		Type:    pluginType.String(),
 		Command: command,
 		Args:    args,
 		Env:     env,
