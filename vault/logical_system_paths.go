@@ -270,7 +270,7 @@ func (b *SystemBackend) sealPaths() []*framework.Path {
 
 func (b *SystemBackend) pluginsCatalogPath() *framework.Path {
 	return &framework.Path{
-		Pattern: "plugins/catalog/(?P<type>.+)/(?P<name>.+)",
+		Pattern: "plugins/catalog/(?P<type>auth|database|secret)/(?P<name>.+)",
 
 		Fields: map[string]*framework.FieldSchema{
 			"name": &framework.FieldSchema{
@@ -279,7 +279,7 @@ func (b *SystemBackend) pluginsCatalogPath() *framework.Path {
 			},
 			"type": &framework.FieldSchema{
 				Type:        framework.TypeString,
-				Description: strings.TrimSpace(sysHelp["plugin-catalog_type"][0]), // TODO need to leave some of those
+				Description: strings.TrimSpace(sysHelp["plugin-catalog_type"][0]),
 			},
 			"sha256": &framework.FieldSchema{
 				Type:        framework.TypeString,
@@ -340,12 +340,12 @@ func (b *SystemBackend) pluginsReloadPath() *framework.Path {
 
 func (b *SystemBackend) pluginsCatalogListPath() *framework.Path {
 	return &framework.Path{
-		Pattern: "plugins/catalog/(?P<type>.+)/?$",
+		Pattern: "plugins/catalog/(?P<type>auth|database|secret)/?$",
 
 		Fields: map[string]*framework.FieldSchema{
 			"type": &framework.FieldSchema{
 				Type:        framework.TypeString,
-				Description: strings.TrimSpace(sysHelp["plugin-catalog_type"][0]), // TODO need to leave some of those
+				Description: strings.TrimSpace(sysHelp["plugin-catalog_type"][0]),
 			},
 		},
 
