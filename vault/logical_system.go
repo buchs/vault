@@ -617,7 +617,6 @@ func mountInfo(entry *MountEntry) map[string]interface{} {
 		"default_lease_ttl": int64(entry.Config.DefaultLeaseTTL.Seconds()),
 		"max_lease_ttl":     int64(entry.Config.MaxLeaseTTL.Seconds()),
 		"force_no_cache":    entry.Config.ForceNoCache,
-		"plugin_name":       entry.Config.PluginName,
 	}
 	if rawVal, ok := entry.synthesizedConfigCache.Load("audit_non_hmac_request_keys"); ok {
 		entryConfig["audit_non_hmac_request_keys"] = rawVal.([]string)
@@ -1495,7 +1494,6 @@ func (b *SystemBackend) handleAuthTable(ctx context.Context, req *logical.Reques
 		entryConfig := map[string]interface{}{
 			"default_lease_ttl": int64(entry.Config.DefaultLeaseTTL.Seconds()),
 			"max_lease_ttl":     int64(entry.Config.MaxLeaseTTL.Seconds()),
-			"plugin_name":       entry.Config.PluginName,
 		}
 		if rawVal, ok := entry.synthesizedConfigCache.Load("audit_non_hmac_request_keys"); ok {
 			entryConfig["audit_non_hmac_request_keys"] = rawVal.([]string)
