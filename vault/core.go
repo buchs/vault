@@ -135,6 +135,9 @@ type unlockInformation struct {
 type Core struct {
 	entCore
 
+	pluginFactory   logical.Factory
+	builtinRegistry BuiltinRegistry
+
 	// N.B.: This is used to populate a dev token down replication, as
 	// otherwise, after replication is started, a dev would have to go through
 	// the generate-root process simply to talk to the new follower cluster.
@@ -393,8 +396,16 @@ type Core struct {
 	allLoggersLock sync.RWMutex
 }
 
+type BuiltinRegistry interface {
+	Get(name string, pluginType consts.PluginType) (func() (interface{}, error), bool)
+	Keys(pluginType consts.PluginType) []string
+}
+
 // CoreConfig is used to parameterize a core
 type CoreConfig struct {
+	BuiltinRegistry BuiltinRegistry // TODO struct tags
+	PluginFactory   logical.Factory // TODO struct tags
+
 	DevToken string `json:"dev_token" structs:"dev_token" mapstructure:"dev_token"`
 
 	LogicalBackends map[string]logical.Factory `json:"logical_backends" structs:"logical_backends" mapstructure:"logical_backends"`

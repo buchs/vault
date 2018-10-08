@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-uuid"
-	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/jsonutil"
 	"github.com/hashicorp/vault/helper/namespace"
@@ -1104,7 +1103,7 @@ func (c *Core) newLogicalBackend(ctx context.Context, entry *MountEntry, sysView
 
 	f, ok := c.logicalBackends[t]
 	if !ok {
-		f = plugin.Factory
+		f = c.pluginFactory
 	}
 
 	// Set up conf to pass in plugin_name

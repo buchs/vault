@@ -66,7 +66,7 @@ var credentialBackends = map[string]logical.Factory{
 	"userpass":   credUserpass.Factory,
 }
 
-var databasePlugins = map[string]BuiltinFactory{
+var databasePlugins = map[string]func() (interface{}, error){
 	// These four databasePlugins all use the same mysql implementation but with
 	// different username settings passed by the constructor.
 	"mysql-database-plugin":        dbMysql.New(dbMysql.MetadataLen, dbMysql.MetadataLen, dbMysql.UsernameLen),

@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/vault/helper/consts"
+
 	"github.com/fatih/structs"
 	hclog "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/audit"
@@ -1971,8 +1973,8 @@ func TestSystemBackend_PluginCatalog_CRUD(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 
-	if len(resp.Data["keys"].([]string)) != len(builtinplugins.Keys()) {
-		t.Fatalf("Wrong number of plugins, got %d, expected %d", len(resp.Data["keys"].([]string)), len(builtinplugins.Keys()))
+	if len(resp.Data["keys"].([]string)) != len(builtinplugins.Keys(consts.PluginTypeDatabase)) {
+		t.Fatalf("Wrong number of plugins, got %d, expected %d", len(resp.Data["keys"].([]string)), len(builtinplugins.Keys(consts.PluginTypeDatabase)))
 	}
 
 	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/mysql-database-plugin")

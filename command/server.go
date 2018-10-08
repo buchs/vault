@@ -20,6 +20,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/vault/builtin/plugin"
+
+	"github.com/hashicorp/vault/helper/builtinplugins"
+
 	"github.com/mitchellh/cli"
 	testing "github.com/mitchellh/go-testing-interface"
 	"github.com/posener/complete"
@@ -529,6 +533,7 @@ func (c *ServerCommand) Run(args []string) int {
 		DisableSealWrap:           config.DisableSealWrap,
 		DisablePerformanceStandby: config.DisablePerformanceStandby,
 		AllLoggers:                allLoggers,
+		PluginFactory:             plugin.Factory,
 	}
 	if c.flagDev {
 		coreConfig.DevToken = c.flagDevRootTokenID
@@ -702,6 +707,10 @@ CLUSTER_SYNTHESIS_COMPLETE:
 			return 1
 		}
 	}
+
+	// TODO this registry needs to be populated in a lot more places than just here.
+	// TODO also should it be a static, immutable, read-only singleton?
+	coreConfig.BuiltinRegistry = &builtinplugins.Registry{}
 
 	// Initialize the core
 	core, newCoreError := vault.NewCore(coreConfig)

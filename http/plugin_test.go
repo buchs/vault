@@ -54,8 +54,7 @@ func getPluginClusterAndCore(t testing.TB, logger log.Logger) (*vault.TestCluste
 
 	// Mount the mock plugin
 	err = core.Client.Sys().Mount("mock", &api.MountInput{
-		Type:       "plugin",
-		PluginName: "mock-plugin",
+		Type: "plugin",
 	})
 	if err != nil {
 		t.Fatal(err)

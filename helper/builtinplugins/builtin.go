@@ -1,31 +1,22 @@
 package builtinplugins
 
 import (
-	"strings"
-
 	"github.com/hashicorp/vault/helper/consts"
 )
 
-// BuiltinFactory is the func signature that should be returned by
-// the plugin's New() func.
-type BuiltinFactory func() (interface{}, error)
-
-func toBuiltinFactory(ifc interface{}) BuiltinFactory {
-	return func() (interface{}, error) {
-		return ifc, nil
-	}
-}
+// TODO could this code be more graceful? should the maps be on the struct?
+type Registry struct{}
 
 // Get returns the BuiltinFactory func for a particular backend plugin
 // from the databasePlugins map.
-func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
+func (r *Registry) Get(name string, pluginType consts.PluginType) (func() (interface{}, error), bool) {
 	switch pluginType {
 	case consts.PluginTypeCredential:
 		f, ok := credentialBackends[name]
-		return toBuiltinFactory(f), ok
+		return toFunc(f), ok
 	case consts.PluginTypeSecrets:
 		f, ok := logicalBackends[name]
-		return toBuiltinFactory(f), ok
+		return toFunc(f), ok
 	case consts.PluginTypeDatabase:
 		f, ok := databasePlugins[name]
 		return f, ok
@@ -35,7 +26,7 @@ func Get(name string, pluginType consts.PluginType) (BuiltinFactory, bool) {
 }
 
 // Keys returns the list of plugin names that are considered builtin databasePlugins.
-func Keys(pluginType consts.PluginType) []string {
+func (r *Registry) Keys(pluginType consts.PluginType) []string {
 	var keys []string
 	switch pluginType {
 	case consts.PluginTypeDatabase:
@@ -54,16 +45,8 @@ func Keys(pluginType consts.PluginType) []string {
 	return keys
 }
 
-// ParseKey returns a key's:
-//   - Name
-//   - PluginType
-func ParseKey(key string) (string, consts.PluginType, error) {
-	fields := strings.Split(key, "-")
-	name := fields[0]
-	strType := fields[1]
-	pluginType, err := consts.ParsePluginType(strType)
-	if err != nil {
-		return "", consts.PluginTypeUnknown, err
+func toFunc(ifc interface{}) func() (interface{}, error) {
+	return func() (interface{}, error) {
+		return ifc, nil
 	}
-	return name, pluginType, nil
 }
