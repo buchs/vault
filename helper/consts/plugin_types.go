@@ -2,11 +2,6 @@ package consts
 
 import "fmt"
 
-// PluginType does overlap with logical.BackendType,
-// but it's necessary here because directly using the
-// logical package can often cause import cycles.
-// Vendor plugins depend on logical.BackendType in
-// its current location, so we can't move it here.
 type PluginType int
 
 const (

@@ -10,9 +10,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/vault/helper/consts"
-
 	"github.com/hashicorp/vault/helper/builtinplugins"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/pluginutil"
 )
 
@@ -35,7 +34,7 @@ func TestPluginCatalog_CRUD(t *testing.T) {
 		Name:    "mysql-database-plugin",
 		Builtin: true,
 	}
-	expectedBuiltin.BuiltinFactory, _ = builtinplugins.Get("mysql-database-plugin", consts.PluginTypeDatabase)
+	expectedBuiltin.BuiltinFactory, _ = builtinplugins.Registry.Get("mysql-database-plugin", consts.PluginTypeDatabase)
 
 	if &(p.BuiltinFactory) == &(expectedBuiltin.BuiltinFactory) {
 		t.Fatal("expected BuiltinFactory did not match actual")
@@ -94,7 +93,7 @@ func TestPluginCatalog_CRUD(t *testing.T) {
 		Name:    "mysql-database-plugin",
 		Builtin: true,
 	}
-	expectedBuiltin.BuiltinFactory, _ = builtinplugins.Get("mysql-database-plugin", consts.PluginTypeDatabase)
+	expectedBuiltin.BuiltinFactory, _ = builtinplugins.Registry.Get("mysql-database-plugin", consts.PluginTypeDatabase)
 
 	if &(p.BuiltinFactory) == &(expectedBuiltin.BuiltinFactory) {
 		t.Fatal("expected BuiltinFactory did not match actual")
@@ -117,7 +116,7 @@ func TestPluginCatalog_List(t *testing.T) {
 	core.pluginCatalog.directory = sym
 
 	// Get builtin plugins and sort them
-	builtinKeys := builtinplugins.Keys(consts.PluginTypeDatabase)
+	builtinKeys := builtinplugins.Registry.Keys(consts.PluginTypeDatabase)
 	sort.Strings(builtinKeys)
 
 	// List only builtin plugins

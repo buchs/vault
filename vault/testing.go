@@ -27,8 +27,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hashicorp/vault/helper/consts"
-
 	log "github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/copystructure"
 
@@ -38,6 +36,7 @@ import (
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/audit"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/logging"
 	"github.com/hashicorp/vault/helper/reload"
 	"github.com/hashicorp/vault/helper/salt"

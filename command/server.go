@@ -20,10 +20,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/vault/builtin/plugin"
-
-	"github.com/hashicorp/vault/helper/builtinplugins"
-
 	"github.com/mitchellh/cli"
 	testing "github.com/mitchellh/go-testing-interface"
 	"github.com/posener/complete"
@@ -38,8 +34,10 @@ import (
 	"github.com/hashicorp/go-multierror"
 	sockaddr "github.com/hashicorp/go-sockaddr"
 	"github.com/hashicorp/vault/audit"
+	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/command/server"
 	serverseal "github.com/hashicorp/vault/command/server/seal"
+	"github.com/hashicorp/vault/helper/builtinplugins"
 	"github.com/hashicorp/vault/helper/gated-writer"
 	"github.com/hashicorp/vault/helper/jsonutil"
 	"github.com/hashicorp/vault/helper/logging"
@@ -708,9 +706,7 @@ CLUSTER_SYNTHESIS_COMPLETE:
 		}
 	}
 
-	// TODO this registry needs to be populated in a lot more places than just here.
-	// TODO also should it be a static, immutable, read-only singleton?
-	coreConfig.BuiltinRegistry = &builtinplugins.Registry{}
+	coreConfig.BuiltinRegistry = builtinplugins.Registry
 
 	// Initialize the core
 	core, newCoreError := vault.NewCore(coreConfig)
