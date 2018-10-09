@@ -132,7 +132,6 @@ func TestSystemBackend_mounts(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["secret/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["secret/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -148,7 +147,6 @@ func TestSystemBackend_mounts(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["sys/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["sys/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -162,7 +160,6 @@ func TestSystemBackend_mounts(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     true,
@@ -176,7 +173,6 @@ func TestSystemBackend_mounts(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["identity/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["identity/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -228,7 +224,6 @@ func TestSystemBackend_mount(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["secret/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["secret/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -244,7 +239,6 @@ func TestSystemBackend_mount(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["sys/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["sys/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -258,7 +252,6 @@ func TestSystemBackend_mount(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     true,
@@ -272,7 +265,6 @@ func TestSystemBackend_mount(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": resp.Data["identity/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 				"max_lease_ttl":     resp.Data["identity/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     false,
@@ -286,7 +278,6 @@ func TestSystemBackend_mount(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": int64(2100),
 				"max_lease_ttl":     int64(2700),
-				"plugin_name":       "",
 				"force_no_cache":    false,
 			},
 			"local":     true,
@@ -1415,7 +1406,6 @@ func TestSystemBackend_authTable(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": int64(0),
 				"max_lease_ttl":     int64(0),
-				"plugin_name":       "",
 			},
 			"local":     false,
 			"seal_wrap": false,
@@ -1467,7 +1457,6 @@ func TestSystemBackend_enableAuth(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": int64(2100),
 				"max_lease_ttl":     int64(2700),
-				"plugin_name":       "",
 			},
 			"local":     true,
 			"seal_wrap": true,
@@ -1480,7 +1469,6 @@ func TestSystemBackend_enableAuth(t *testing.T) {
 			"config": map[string]interface{}{
 				"default_lease_ttl": int64(0),
 				"max_lease_ttl":     int64(0),
-				"plugin_name":       "",
 			},
 			"local":     false,
 			"seal_wrap": false,
@@ -2241,7 +2229,6 @@ func TestSystemBackend_InternalUIMounts(t *testing.T) {
 				"config": map[string]interface{}{
 					"default_lease_ttl": resp.Data["secret"].(map[string]interface{})["secret/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 					"max_lease_ttl":     resp.Data["secret"].(map[string]interface{})["secret/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-					"plugin_name":       "",
 					"force_no_cache":    false,
 				},
 				"local":     false,
@@ -2257,7 +2244,6 @@ func TestSystemBackend_InternalUIMounts(t *testing.T) {
 				"config": map[string]interface{}{
 					"default_lease_ttl": resp.Data["secret"].(map[string]interface{})["sys/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 					"max_lease_ttl":     resp.Data["secret"].(map[string]interface{})["sys/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-					"plugin_name":       "",
 					"force_no_cache":    false,
 				},
 				"local":     false,
@@ -2271,7 +2257,6 @@ func TestSystemBackend_InternalUIMounts(t *testing.T) {
 				"config": map[string]interface{}{
 					"default_lease_ttl": resp.Data["secret"].(map[string]interface{})["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 					"max_lease_ttl":     resp.Data["secret"].(map[string]interface{})["cubbyhole/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-					"plugin_name":       "",
 					"force_no_cache":    false,
 				},
 				"local":     true,
@@ -2285,7 +2270,6 @@ func TestSystemBackend_InternalUIMounts(t *testing.T) {
 				"config": map[string]interface{}{
 					"default_lease_ttl": resp.Data["secret"].(map[string]interface{})["identity/"].(map[string]interface{})["config"].(map[string]interface{})["default_lease_ttl"].(int64),
 					"max_lease_ttl":     resp.Data["secret"].(map[string]interface{})["identity/"].(map[string]interface{})["config"].(map[string]interface{})["max_lease_ttl"].(int64),
-					"plugin_name":       "",
 					"force_no_cache":    false,
 				},
 				"local":     false,
@@ -2300,7 +2284,6 @@ func TestSystemBackend_InternalUIMounts(t *testing.T) {
 					"default_lease_ttl": int64(0),
 					"max_lease_ttl":     int64(0),
 					"force_no_cache":    false,
-					"plugin_name":       "",
 				},
 				"type":        "token",
 				"description": "token based credentials",

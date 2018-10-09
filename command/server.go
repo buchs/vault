@@ -531,6 +531,7 @@ func (c *ServerCommand) Run(args []string) int {
 		DisableSealWrap:           config.DisableSealWrap,
 		DisablePerformanceStandby: config.DisablePerformanceStandby,
 		AllLoggers:                allLoggers,
+		BuiltinRegistry:           builtinplugins.Registry,
 		PluginFactory:             plugin.Factory,
 	}
 	if c.flagDev {
@@ -705,8 +706,6 @@ CLUSTER_SYNTHESIS_COMPLETE:
 			return 1
 		}
 	}
-
-	coreConfig.BuiltinRegistry = builtinplugins.Registry
 
 	// Initialize the core
 	core, newCoreError := vault.NewCore(coreConfig)

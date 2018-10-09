@@ -426,8 +426,8 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 	// Check for the correct backend type
 	backendType := backend.Type()
 	if backendType != logical.TypeLogical {
-		if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" {
-			return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Type, backendType)
+		if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" && entry.Type != "test" {
+			return fmt.Errorf(`unknown backend type: "%s"`, entry.Type)
 		}
 	}
 
@@ -1029,8 +1029,8 @@ func (c *Core) setupMounts(ctx context.Context) error {
 			backendType := backend.Type()
 
 			if backendType != logical.TypeLogical {
-				if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" {
-					return fmt.Errorf("cannot mount %q of type %q as a logical backend", entry.Type, backendType)
+				if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" && entry.Type != "test" {
+					return fmt.Errorf(`unknown backend type: "%s"`, entry.Type)
 				}
 			}
 

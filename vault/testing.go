@@ -117,6 +117,9 @@ func TestCoreWithSeal(t testing.T, testSeal Seal, enableRaw bool) *Core {
 		Seal:      testSeal,
 		EnableUI:  false,
 		EnableRaw: enableRaw,
+		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
+			return &framework.Backend{}, nil
+		},
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -125,6 +128,9 @@ func TestCoreUI(t testing.T, enableUI bool) *Core {
 	conf := &CoreConfig{
 		EnableUI:  enableUI,
 		EnableRaw: true,
+		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
+			return &framework.Backend{}, nil
+		},
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -208,6 +214,9 @@ func testCoreConfig(t testing.T, physicalBackend physical.Backend, logger log.Lo
 		CredentialBackends: credentialBackends,
 		DisableMlock:       true,
 		Logger:             logger,
+		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
+			return &framework.Backend{}, nil
+		},
 	}
 
 	return conf
@@ -411,8 +420,7 @@ func TestAddTestPlugin(t testing.T, c *Core, name, testFunc string, env []string
 	c.pluginCatalog.directory = fullPath
 
 	args := []string{fmt.Sprintf("--test.run=%s", testFunc)}
-	// TODO need to put a more realistic plugin type here
-	err = c.pluginCatalog.Set(context.Background(), name, consts.PluginTypeUnknown, fileName, args, env, sum)
+	err = c.pluginCatalog.Set(context.Background(), name, consts.PluginTypeDatabase, fileName, args, env, sum)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1178,6 +1186,9 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		DisableMlock:       true,
 		EnableUI:           true,
 		EnableRaw:          true,
+		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
+			return &framework.Backend{}, nil
+		},
 	}
 
 	if base != nil {

@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/vault/vault"
 )
 
+// TODO what's going on with the use of plugin_name in these tests?
 const (
 	expectedEnvKey   = "FOO"
 	expectedEnvValue = "BAR"

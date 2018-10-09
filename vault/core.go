@@ -17,7 +17,7 @@ import (
 
 	"github.com/armon/go-metrics"
 	log "github.com/hashicorp/go-hclog"
-	cache "github.com/patrickmn/go-cache"
+	"github.com/patrickmn/go-cache"
 
 	"google.golang.org/grpc"
 
@@ -403,10 +403,9 @@ type BuiltinRegistry interface {
 
 // CoreConfig is used to parameterize a core
 type CoreConfig struct {
-	BuiltinRegistry BuiltinRegistry // TODO struct tags
-	PluginFactory   logical.Factory // TODO struct tags
-
 	DevToken string `json:"dev_token" structs:"dev_token" mapstructure:"dev_token"`
+
+	BuiltinRegistry BuiltinRegistry `json:"builtin_registry" structs:"builtin_registry" mapstructure:"builtin_registry"`
 
 	LogicalBackends map[string]logical.Factory `json:"logical_backends" structs:"logical_backends" mapstructure:"logical_backends"`
 
@@ -454,6 +453,8 @@ type CoreConfig struct {
 	PluginDirectory string `json:"plugin_directory" structs:"plugin_directory" mapstructure:"plugin_directory"`
 
 	DisableSealWrap bool `json:"disable_sealwrap" structs:"disable_sealwrap" mapstructure:"disable_sealwrap"`
+
+	PluginFactory logical.Factory `json:"plugin_factory" structs:"plugin_factory" mapstructure:"plugin_factory"`
 
 	ReloadFuncs     *map[string][]reload.ReloadFunc
 	ReloadFuncsLock *sync.RWMutex
@@ -538,6 +539,8 @@ func NewCore(conf *CoreConfig) (*Core, error) {
 		disablePerfStandby:               true,
 		activeContextCancelFunc:          new(atomic.Value),
 		allLoggers:                       conf.AllLoggers,
+		pluginFactory:                    conf.PluginFactory,
+		builtinRegistry:                  conf.BuiltinRegistry,
 	}
 
 	atomic.StoreUint32(c.sealed, 1)
