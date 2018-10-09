@@ -27,6 +27,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/hashicorp/vault/helper/builtinplugins"
+
 	log "github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/copystructure"
 
@@ -120,6 +122,7 @@ func TestCoreWithSeal(t testing.T, testSeal Seal, enableRaw bool) *Core {
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
+		BuiltinRegistry: builtinplugins.Registry,
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -131,6 +134,7 @@ func TestCoreUI(t testing.T, enableUI bool) *Core {
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
+		BuiltinRegistry: builtinplugins.Registry,
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -217,6 +221,7 @@ func testCoreConfig(t testing.T, physicalBackend physical.Backend, logger log.Lo
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
+		BuiltinRegistry: builtinplugins.Registry,
 	}
 
 	return conf
@@ -1189,6 +1194,7 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
+		BuiltinRegistry: builtinplugins.Registry,
 	}
 
 	if base != nil {
