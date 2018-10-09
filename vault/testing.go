@@ -27,15 +27,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hashicorp/vault/helper/builtinplugins"
-
 	log "github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/copystructure"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/http2"
 
-	cleanhttp "github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/audit"
 	"github.com/hashicorp/vault/helper/consts"
@@ -45,6 +43,7 @@ import (
 	"github.com/hashicorp/vault/logical"
 	"github.com/hashicorp/vault/logical/framework"
 	"github.com/hashicorp/vault/physical"
+	dbMysql "github.com/hashicorp/vault/plugins/database/mysql"
 	"github.com/mitchellh/go-testing-interface"
 
 	physInmem "github.com/hashicorp/vault/physical/inmem"
@@ -122,7 +121,7 @@ func TestCoreWithSeal(t testing.T, testSeal Seal, enableRaw bool) *Core {
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
-		BuiltinRegistry: builtinplugins.Registry,
+		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -134,7 +133,7 @@ func TestCoreUI(t testing.T, enableUI bool) *Core {
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
-		BuiltinRegistry: builtinplugins.Registry,
+		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 	return TestCoreWithSealAndUI(t, conf)
 }
@@ -221,7 +220,7 @@ func testCoreConfig(t testing.T, physicalBackend physical.Backend, logger log.Lo
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
-		BuiltinRegistry: builtinplugins.Registry,
+		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 
 	return conf
@@ -1194,7 +1193,7 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
-		BuiltinRegistry: builtinplugins.Registry,
+		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 
 	if base != nil {
@@ -1490,4 +1489,31 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 	testExtraClusterCoresTestSetup(t, priKey, testCluster.Cores)
 
 	return &testCluster
+}
+
+func newMockBuiltinRegistry() *mockBuiltinRegistry {
+	return &mockBuiltinRegistry{
+		forTesting: map[string]consts.PluginType{
+			"mysql-database-plugin": consts.PluginTypeDatabase,
+		},
+	}
+}
+
+type mockBuiltinRegistry struct {
+	forTesting map[string]consts.PluginType
+}
+
+func (m *mockBuiltinRegistry) Get(name string, pluginType consts.PluginType) (func() (interface{}, error), bool) {
+	testPluginType, ok := m.forTesting[name]
+	if !ok {
+		return nil, false
+	}
+	if pluginType != testPluginType {
+		return nil, false
+	}
+	// TODO this isn't exactly extensible, just trying to get everything fixed...
+	return dbMysql.New(dbMysql.MetadataLen, dbMysql.MetadataLen, dbMysql.UsernameLen), true
+}
+func (m *mockBuiltinRegistry) Keys(pluginType consts.PluginType) []string {
+	return nil
 }
