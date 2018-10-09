@@ -84,6 +84,7 @@ func testConfig(t *testing.T) (*logical.BackendConfig, func()) {
 		System: sys,
 		Config: map[string]string{
 			"plugin_name": "mock-plugin",
+			"plugin_type": "database",
 		},
 	}
 
