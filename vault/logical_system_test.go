@@ -1420,7 +1420,7 @@ func TestSystemBackend_authTable(t *testing.T) {
 func TestSystemBackend_enableAuth(t *testing.T) {
 	c, b, _ := testCoreSystemBackend(t)
 	c.credentialBackends["noop"] = func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
-		return &NoopBackend{}, nil
+		return &NoopBackend{BackendType: logical.TypeCredential}, nil
 	}
 
 	req := logical.TestRequest(t, logical.UpdateOperation, "auth/foo")
@@ -1488,7 +1488,7 @@ func TestSystemBackend_enableAuth_invalid(t *testing.T) {
 	if err != logical.ErrInvalidRequest {
 		t.Fatalf("err: %v", err)
 	}
-	if resp.Data["error"] != `unknown backend type: "nope"` {
+	if resp.Data["error"] != `cannot mount "nope" of type "unknown" as an auth backend` {
 		t.Fatalf("bad: %v", resp)
 	}
 }
@@ -1954,17 +1954,17 @@ func TestSystemBackend_PluginCatalog_CRUD(t *testing.T) {
 	}
 	c.pluginCatalog.directory = sym
 
-	req := logical.TestRequest(t, logical.ListOperation, "plugins/catalog/")
+	req := logical.TestRequest(t, logical.ListOperation, "plugins/catalog/database")
 	resp, err := b.HandleRequest(namespace.TestContext(), req)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
-	if len(resp.Data["keys"].([]string)) != len(builtinplugins.Registry.Keys(consts.PluginTypeDatabase)) {
+	if len(resp.Data["keys"].([]string)) != len(c.builtinRegistry.Keys(consts.PluginTypeDatabase)) {
 		t.Fatalf("Wrong number of plugins, got %d, expected %d", len(resp.Data["keys"].([]string)), len(builtinplugins.Registry.Keys(consts.PluginTypeDatabase)))
 	}
 
-	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/mysql-database-plugin")
+	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/database/mysql-database-plugin")
 	resp, err = b.HandleRequest(namespace.TestContext(), req)
 	if err != nil {
 		t.Fatalf("err: %v", err)
@@ -1991,7 +1991,7 @@ func TestSystemBackend_PluginCatalog_CRUD(t *testing.T) {
 
 	// Check we can only specify args in one of command or args.
 	command := fmt.Sprintf("%s --test", filepath.Base(file.Name()))
-	req = logical.TestRequest(t, logical.UpdateOperation, "plugins/catalog/test-plugin")
+	req = logical.TestRequest(t, logical.UpdateOperation, "plugins/catalog/database/test-plugin")
 	req.Data["args"] = []string{"--foo"}
 	req.Data["sha_256"] = hex.EncodeToString([]byte{'1'})
 	req.Data["command"] = command
@@ -2009,7 +2009,7 @@ func TestSystemBackend_PluginCatalog_CRUD(t *testing.T) {
 		t.Fatalf("err: %v %v", err, resp.Error())
 	}
 
-	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/test-plugin")
+	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/database/test-plugin")
 	resp, err = b.HandleRequest(namespace.TestContext(), req)
 	if err != nil {
 		t.Fatalf("err: %v", err)
@@ -2028,13 +2028,13 @@ func TestSystemBackend_PluginCatalog_CRUD(t *testing.T) {
 	}
 
 	// Delete plugin
-	req = logical.TestRequest(t, logical.DeleteOperation, "plugins/catalog/test-plugin")
+	req = logical.TestRequest(t, logical.DeleteOperation, "plugins/catalog/database/test-plugin")
 	resp, err = b.HandleRequest(namespace.TestContext(), req)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
-	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/test-plugin")
+	req = logical.TestRequest(t, logical.ReadOperation, "plugins/catalog/database/test-plugin")
 	resp, err = b.HandleRequest(namespace.TestContext(), req)
 	if resp != nil || err != nil {
 		t.Fatalf("expected nil response, plugin not deleted correctly got resp: %v, err: %v", resp, err)

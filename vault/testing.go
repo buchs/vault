@@ -1517,5 +1517,5 @@ func (m *mockBuiltinRegistry) Get(name string, pluginType consts.PluginType) (fu
 	return dbMysql.New(dbMysql.MetadataLen, dbMysql.MetadataLen, dbMysql.UsernameLen), true
 }
 func (m *mockBuiltinRegistry) Keys(pluginType consts.PluginType) []string {
-	return nil
+	return []string{"apples", "oranges", "pears"}
 }
