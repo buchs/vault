@@ -1209,6 +1209,8 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		coreConfig.DisableSealWrap = base.DisableSealWrap
 		coreConfig.DevLicenseDuration = base.DevLicenseDuration
 		coreConfig.DisableCache = base.DisableCache
+		coreConfig.PluginFactory = base.PluginFactory
+		coreConfig.BuiltinRegistry = base.BuiltinRegistry
 
 		if !coreConfig.DisableMlock {
 			base.DisableMlock = false

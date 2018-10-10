@@ -660,6 +660,7 @@ func (b *SystemBackend) handleMountTable(ctx context.Context, req *logical.Reque
 }
 
 // handleMount is used to mount a new path
+// TODO handling a mount is the same as adding something to the plugin catalogue.... right? or is it?
 func (b *SystemBackend) handleMount(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	repState := b.Core.ReplicationState()
 

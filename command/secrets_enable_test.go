@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/vault/helper/builtinplugins"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/mitchellh/cli"
 )
 
@@ -202,8 +204,8 @@ func TestSecretsEnableCommand_Run(t *testing.T) {
 		}
 
 		// Removing one from logical list since plugin is a virtual backend
-		if len(backends) != len(logicalBackends)-1 {
-			t.Fatalf("expected %d logical backends, got %d", len(logicalBackends)-1, len(backends))
+		if len(backends) != len(builtinplugins.Registry.Keys(consts.PluginTypeSecrets)) {
+			t.Fatalf("expected %d logical backends, got %d", len(builtinplugins.Registry.Keys(consts.PluginTypeSecrets)), len(backends))
 		}
 
 		for _, b := range backends {

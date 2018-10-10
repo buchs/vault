@@ -60,6 +60,7 @@ const (
 	systemMountType    = "system"
 	identityMountType  = "identity"
 	cubbyholeMountType = "cubbyhole"
+	pluginMountType    = "plugin"
 
 	MountTableUpdateStorage   = true
 	MountTableNoUpdateStorage = false
@@ -92,6 +93,7 @@ var (
 		systemMountType,
 		"token",
 		identityMountType,
+		pluginMountType,
 	}
 
 	// mountAliases maps old backend names to new backend names, allowing us
@@ -414,7 +416,6 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 	var backend logical.Backend
 	sysView := c.mountEntrySysView(entry)
 
-	// Consider having plugin name under entry.Options
 	backend, err = c.newLogicalBackend(ctx, entry, sysView, view)
 	if err != nil {
 		return err
@@ -426,6 +427,7 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 	// Check for the correct backend type
 	backendType := backend.Type()
 	if backendType != logical.TypeLogical {
+		// TODO it's not great that type "testing" is called out here and in similar locations
 		if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" && entry.Type != "test" {
 			return fmt.Errorf(`unknown backend type: "%s"`, entry.Type)
 		}
