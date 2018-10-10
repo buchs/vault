@@ -427,7 +427,7 @@ func (c *Core) mountInternal(ctx context.Context, entry *MountEntry, updateStora
 	// Check for the correct backend type
 	backendType := backend.Type()
 	if backendType != logical.TypeLogical {
-		// TODO it's not great that type "testing" is called out here and in similar locations
+		// TODO it's not great that type "testing" is called out here and in similar locations - add TypeLogical to test backends and subtract this exception
 		if entry.Type != "kv" && entry.Type != "system" && entry.Type != "cubbyhole" && entry.Type != "test" {
 			return fmt.Errorf(`unknown backend type: "%s"`, entry.Type)
 		}
