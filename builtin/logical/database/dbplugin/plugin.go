@@ -61,7 +61,6 @@ func PluginFactory(ctx context.Context, pluginName string, pluginType consts.Plu
 		transport = "builtin"
 
 	} else {
-		// create a DatabasePluginClient instance
 		db, err = newPluginClient(ctx, sys, pluginRunner, namedLogger)
 		if err != nil {
 			return nil, err

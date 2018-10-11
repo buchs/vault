@@ -115,12 +115,9 @@ func TestCoreWithConfig(t testing.T, conf *CoreConfig) *Core {
 // specified seal for testing.
 func TestCoreWithSeal(t testing.T, testSeal Seal, enableRaw bool) *Core {
 	conf := &CoreConfig{
-		Seal:      testSeal,
-		EnableUI:  false,
-		EnableRaw: enableRaw,
-		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
-			return &framework.Backend{}, nil
-		},
+		Seal:            testSeal,
+		EnableUI:        false,
+		EnableRaw:       enableRaw,
 		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 	return TestCoreWithSealAndUI(t, conf)
@@ -128,11 +125,8 @@ func TestCoreWithSeal(t testing.T, testSeal Seal, enableRaw bool) *Core {
 
 func TestCoreUI(t testing.T, enableUI bool) *Core {
 	conf := &CoreConfig{
-		EnableUI:  enableUI,
-		EnableRaw: true,
-		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
-			return &framework.Backend{}, nil
-		},
+		EnableUI:        enableUI,
+		EnableRaw:       true,
 		BuiltinRegistry: newMockBuiltinRegistry(),
 	}
 	return TestCoreWithSealAndUI(t, conf)
@@ -217,10 +211,7 @@ func testCoreConfig(t testing.T, physicalBackend physical.Backend, logger log.Lo
 		CredentialBackends: credentialBackends,
 		DisableMlock:       true,
 		Logger:             logger,
-		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
-			return &framework.Backend{}, nil
-		},
-		BuiltinRegistry: newMockBuiltinRegistry(),
+		BuiltinRegistry:    newMockBuiltinRegistry(),
 	}
 
 	return conf
@@ -1190,11 +1181,7 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		DisableMlock:       true,
 		EnableUI:           true,
 		EnableRaw:          true,
-		// TODO could this be causing things like the unseal process to fail? yes - failed to setup mount table.
-		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
-			return &framework.Backend{}, nil
-		},
-		BuiltinRegistry: newMockBuiltinRegistry(),
+		BuiltinRegistry:    newMockBuiltinRegistry(),
 	}
 
 	if base != nil {
@@ -1210,9 +1197,6 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		coreConfig.DisableSealWrap = base.DisableSealWrap
 		coreConfig.DevLicenseDuration = base.DevLicenseDuration
 		coreConfig.DisableCache = base.DisableCache
-		if base.PluginFactory != nil {
-			coreConfig.PluginFactory = base.PluginFactory
-		}
 		if base.BuiltinRegistry != nil {
 			coreConfig.BuiltinRegistry = base.BuiltinRegistry
 		}

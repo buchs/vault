@@ -135,7 +135,6 @@ type unlockInformation struct {
 type Core struct {
 	entCore
 
-	pluginFactory   logical.Factory
 	builtinRegistry BuiltinRegistry
 
 	// N.B.: This is used to populate a dev token down replication, as
@@ -454,8 +453,6 @@ type CoreConfig struct {
 
 	DisableSealWrap bool `json:"disable_sealwrap" structs:"disable_sealwrap" mapstructure:"disable_sealwrap"`
 
-	PluginFactory logical.Factory `json:"plugin_factory" structs:"plugin_factory" mapstructure:"plugin_factory"`
-
 	ReloadFuncs     *map[string][]reload.ReloadFunc
 	ReloadFuncsLock *sync.RWMutex
 
@@ -539,7 +536,6 @@ func NewCore(conf *CoreConfig) (*Core, error) {
 		disablePerfStandby:               true,
 		activeContextCancelFunc:          new(atomic.Value),
 		allLoggers:                       conf.AllLoggers,
-		pluginFactory:                    conf.PluginFactory,
 		builtinRegistry:                  conf.BuiltinRegistry,
 	}
 

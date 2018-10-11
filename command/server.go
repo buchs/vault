@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/cli"
-	testing "github.com/mitchellh/go-testing-interface"
+	"github.com/mitchellh/go-testing-interface"
 	"github.com/posener/complete"
 
 	"google.golang.org/grpc/grpclog"
@@ -32,9 +32,8 @@ import (
 	"github.com/hashicorp/errwrap"
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	sockaddr "github.com/hashicorp/go-sockaddr"
+	"github.com/hashicorp/go-sockaddr"
 	"github.com/hashicorp/vault/audit"
-	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/command/server"
 	serverseal "github.com/hashicorp/vault/command/server/seal"
 	"github.com/hashicorp/vault/helper/builtinplugins"
@@ -532,7 +531,6 @@ func (c *ServerCommand) Run(args []string) int {
 		DisablePerformanceStandby: config.DisablePerformanceStandby,
 		AllLoggers:                allLoggers,
 		BuiltinRegistry:           builtinplugins.Registry,
-		PluginFactory:             plugin.Factory,
 	}
 	if c.flagDev {
 		coreConfig.DevToken = c.flagDevRootTokenID
