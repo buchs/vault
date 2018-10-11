@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/vault/helper/consts"
+
 	"github.com/mitchellh/cli"
 )
 
@@ -79,7 +81,7 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 		defer closer()
 
 		pluginName := "my-plugin"
-		_, sha256Sum := testPluginCreateAndRegister(t, client, pluginDir, pluginName)
+		_, sha256Sum := testPluginCreateAndRegister(t, client, pluginDir, pluginName, consts.PluginTypeCredential)
 
 		ui, cmd := testPluginInfoCommand(t)
 		cmd.client = client
@@ -110,7 +112,7 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 		defer closer()
 
 		pluginName := "my-plugin"
-		testPluginCreateAndRegister(t, client, pluginDir, pluginName)
+		testPluginCreateAndRegister(t, client, pluginDir, pluginName, consts.PluginTypeCredential)
 
 		ui, cmd := testPluginInfoCommand(t)
 		cmd.client = client
