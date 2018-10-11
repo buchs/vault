@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/hashicorp/vault/helper/builtinplugins"
+
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/jsonutil"
@@ -75,7 +77,7 @@ func (c *PluginCatalog) Get(ctx context.Context, name string, pluginType consts.
 		}
 	}
 	// Look for builtin plugins
-	if factory, ok := c.builtinRegistry.Get(name, pluginType); ok {
+	if factory, ok := builtinplugins.Registry.Get(name, pluginType); ok {
 		return &pluginutil.PluginRunner{
 			Name:           name,
 			Type:           pluginType.String(),

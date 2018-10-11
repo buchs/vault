@@ -8,6 +8,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/hashicorp/vault/helper/consts"
+
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/api"
 	bplugin "github.com/hashicorp/vault/builtin/plugin"
@@ -50,7 +52,7 @@ func getPluginClusterAndCore(t testing.TB, logger log.Logger) (*vault.TestCluste
 	os.Setenv(pluginutil.PluginCACertPEMEnv, cluster.CACertPEMFile)
 
 	vault.TestWaitActive(t, core.Core)
-	vault.TestAddTestPlugin(t, core.Core, "mock-plugin", "TestPlugin_PluginMain", []string{}, "")
+	vault.TestAddTestPlugin(t, core.Core, "mock-plugin", consts.PluginTypeUnknown, "TestPlugin_PluginMain", []string{}, "")
 
 	// Mount the mock plugin
 	err = core.Client.Sys().Mount("mock", &api.MountInput{

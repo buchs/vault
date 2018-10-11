@@ -11,7 +11,7 @@ import (
 // it is used to test the invalidate func.
 func pathInternal(b *backend) *framework.Path {
 	return &framework.Path{
-		Pattern: "internal",
+		Pattern: "internal", // TODO this is the reason that test in logical_system_integ_test things that a path internal should work
 		Fields: map[string]*framework.FieldSchema{
 			"value": &framework.FieldSchema{Type: framework.TypeString},
 		},

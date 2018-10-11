@@ -362,7 +362,7 @@ func TestDynamicSystemView(c *Core) *dynamicSystemView {
 
 // TestAddTestPlugin registers the testFunc as part of the plugin command to the
 // plugin catalog. If provided, uses tmpDir as the plugin directory.
-func TestAddTestPlugin(t testing.T, c *Core, name, testFunc string, env []string, tempDir string) {
+func TestAddTestPlugin(t testing.T, c *Core, name string, pluginType consts.PluginType, testFunc string, env []string, tempDir string) {
 	file, err := os.Open(os.Args[0])
 	if err != nil {
 		t.Fatal(err)
@@ -424,7 +424,7 @@ func TestAddTestPlugin(t testing.T, c *Core, name, testFunc string, env []string
 	c.pluginCatalog.directory = fullPath
 
 	args := []string{fmt.Sprintf("--test.run=%s", testFunc)}
-	err = c.pluginCatalog.Set(context.Background(), name, consts.PluginTypeDatabase, fileName, args, env, sum)
+	err = c.pluginCatalog.Set(context.Background(), name, pluginType, fileName, args, env, sum)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1190,6 +1190,7 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		DisableMlock:       true,
 		EnableUI:           true,
 		EnableRaw:          true,
+		// TODO could this be causing things like the unseal process to fail? yes - failed to setup mount table.
 		PluginFactory: func(context.Context, *logical.BackendConfig) (logical.Backend, error) {
 			return &framework.Backend{}, nil
 		},
@@ -1209,8 +1210,12 @@ func NewTestCluster(t testing.T, base *CoreConfig, opts *TestClusterOptions) *Te
 		coreConfig.DisableSealWrap = base.DisableSealWrap
 		coreConfig.DevLicenseDuration = base.DevLicenseDuration
 		coreConfig.DisableCache = base.DisableCache
-		coreConfig.PluginFactory = base.PluginFactory
-		coreConfig.BuiltinRegistry = base.BuiltinRegistry
+		if base.PluginFactory != nil {
+			coreConfig.PluginFactory = base.PluginFactory
+		}
+		if base.BuiltinRegistry != nil {
+			coreConfig.BuiltinRegistry = base.BuiltinRegistry
+		}
 
 		if !coreConfig.DisableMlock {
 			base.DisableMlock = false

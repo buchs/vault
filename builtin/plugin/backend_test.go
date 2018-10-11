@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashicorp/vault/helper/consts"
+
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/helper/logging"
 	"github.com/hashicorp/vault/helper/pluginutil"
@@ -90,7 +92,7 @@ func testConfig(t *testing.T) (*logical.BackendConfig, func()) {
 
 	os.Setenv(pluginutil.PluginCACertPEMEnv, cluster.CACertPEMFile)
 
-	vault.TestAddTestPlugin(t, core.Core, "mock-plugin", "TestBackend_PluginMain", []string{}, "")
+	vault.TestAddTestPlugin(t, core.Core, "mock-plugin", consts.PluginTypeUnknown, "TestBackend_PluginMain", []string{}, "")
 
 	return config, func() {
 		cluster.Cleanup()

@@ -11,6 +11,7 @@ import (
 	"github.com/go-test/deep"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/builtin/plugin"
+	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/namespace"
 	"github.com/hashicorp/vault/helper/pluginutil"
 	vaulthttp "github.com/hashicorp/vault/http"
@@ -20,12 +21,12 @@ import (
 	"github.com/hashicorp/vault/vault"
 )
 
-// TODO what's going on with the use of plugin_name in these tests?
 const (
 	expectedEnvKey   = "FOO"
 	expectedEnvValue = "BAR"
 )
 
+// TODO I think this failing because the plugin being seeded has the correct name but the plugin type of db, and then this test is looking for a different plugin type
 func TestSystemBackend_Plugin_secret(t *testing.T) {
 	cluster := testSystemBackendMock(t, 1, 1, logical.TypeLogical)
 	defer cluster.Cleanup()
@@ -109,7 +110,7 @@ func TestSystemBackend_Plugin_MismatchType(t *testing.T) {
 	core := cluster.Cores[0]
 
 	// Replace the plugin with a credential backend
-	vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainCredentials", []string{}, "")
+	vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeCredential, "TestBackend_PluginMainCredentials", []string{}, "")
 
 	// Make a request to lazy load the now-credential plugin
 	// and expect an error
@@ -184,13 +185,13 @@ func testPlugin_CatalogRemoved(t *testing.T, btype logical.BackendType, testMoun
 		switch btype {
 		case logical.TypeLogical:
 			// Add plugin back to the catalog
-			vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainLogical", []string{}, "")
+			vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeSecrets, "TestBackend_PluginMainLogical", []string{}, "")
 			_, err = core.Client.Logical().Write("sys/mounts/mock-0", map[string]interface{}{
 				"type": "test",
 			})
 		case logical.TypeCredential:
 			// Add plugin back to the catalog
-			vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainCredentials", []string{}, "")
+			vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeCredential, "TestBackend_PluginMainCredentials", []string{}, "")
 			_, err = core.Client.Logical().Write("sys/auth/mock-0", map[string]interface{}{
 				"type": "test",
 			})
@@ -285,9 +286,9 @@ func testPlugin_continueOnError(t *testing.T, btype logical.BackendType, mismatc
 	// Re-add the plugin to the catalog
 	switch btype {
 	case logical.TypeLogical:
-		vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainLogical", []string{}, cluster.TempDir)
+		vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeSecrets, "TestBackend_PluginMainLogical", []string{}, cluster.TempDir)
 	case logical.TypeCredential:
-		vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainCredentials", []string{}, cluster.TempDir)
+		vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeCredential, "TestBackend_PluginMainCredentials", []string{}, cluster.TempDir)
 	}
 
 	// Reload the plugin
@@ -453,10 +454,10 @@ func testSystemBackend_PluginReload(t *testing.T, reqData map[string]interface{}
 func testSystemBackendMock(t *testing.T, numCores, numMounts int, backendType logical.BackendType) *vault.TestCluster {
 	coreConfig := &vault.CoreConfig{
 		LogicalBackends: map[string]logical.Factory{
-			"test": plugin.Factory,
+			"plugin": plugin.Factory,
 		},
 		CredentialBackends: map[string]logical.Factory{
-			"test": plugin.Factory,
+			"plugin": plugin.Factory,
 		},
 	}
 
@@ -482,7 +483,7 @@ func testSystemBackendMock(t *testing.T, numCores, numMounts int, backendType lo
 
 	switch backendType {
 	case logical.TypeLogical:
-		vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainLogical", []string{}, tempDir)
+		vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeSecrets, "TestBackend_PluginMainLogical", []string{}, tempDir)
 		for i := 0; i < numMounts; i++ {
 			// Alternate input styles for plugin_name on every other mount
 			options := map[string]interface{}{
@@ -497,7 +498,7 @@ func testSystemBackendMock(t *testing.T, numCores, numMounts int, backendType lo
 			}
 		}
 	case logical.TypeCredential:
-		vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainCredentials", []string{}, tempDir)
+		vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeCredential, "TestBackend_PluginMainCredentials", []string{}, tempDir)
 		for i := 0; i < numMounts; i++ {
 			// Alternate input styles for plugin_name on every other mount
 			options := map[string]interface{}{
@@ -553,7 +554,7 @@ func testSystemBackend_SingleCluster_Env(t *testing.T, env []string) *vault.Test
 
 	os.Setenv(pluginutil.PluginCACertPEMEnv, cluster.CACertPEMFile)
 
-	vault.TestAddTestPlugin(t, core.Core, "test", "TestBackend_PluginMainEnv", env, tempDir)
+	vault.TestAddTestPlugin(t, core.Core, "test", consts.PluginTypeUnknown, "TestBackend_PluginMainEnv", env, tempDir)
 	options := map[string]interface{}{
 		"type": "test",
 	}
