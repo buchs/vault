@@ -1507,6 +1507,25 @@ func (m *mockBuiltinRegistry) Get(name string, pluginType consts.PluginType) (fu
 	// TODO this isn't exactly extensible, just trying to get everything fixed...
 	return dbMysql.New(dbMysql.MetadataLen, dbMysql.MetadataLen, dbMysql.UsernameLen), true
 }
+
+// Keys only supports getting a realistic list of the keys for database plugins.
 func (m *mockBuiltinRegistry) Keys(pluginType consts.PluginType) []string {
-	return []string{"apples", "oranges", "pears"}
+	if pluginType != consts.PluginTypeDatabase {
+		return []string{}
+	}
+	/*
+		This is a hard-coded reproduction of the db plugin keys in helper/builtinplugins/registry.go.
+		The registry isn't directly used because it causes import cycles.
+	*/
+	return []string{
+		"mysql-database-plugin",
+		"mysql-aurora-database-plugin",
+		"mysql-rds-database-plugin",
+		"mysql-legacy-database-plugin",
+		"postgresql-database-plugin",
+		"mssql-database-plugin",
+		"cassandra-database-plugin",
+		"mongodb-database-plugin",
+		"hana-database-plugin",
+	}
 }
