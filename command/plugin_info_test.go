@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vault/helper/consts"
-
 	"github.com/mitchellh/cli"
 )
 

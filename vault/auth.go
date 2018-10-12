@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/vault/builtin/plugin"
-
 	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/builtin/plugin"
 	"github.com/hashicorp/vault/helper/consts"
 	"github.com/hashicorp/vault/helper/jsonutil"
 	"github.com/hashicorp/vault/helper/namespace"

@@ -26,7 +26,6 @@ const (
 	expectedEnvValue = "BAR"
 )
 
-// TODO I think this failing because the plugin being seeded has the correct name but the plugin type of db, and then this test is looking for a different plugin type
 func TestSystemBackend_Plugin_secret(t *testing.T) {
 	cluster := testSystemBackendMock(t, 1, 1, logical.TypeLogical)
 	defer cluster.Cleanup()
