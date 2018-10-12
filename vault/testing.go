@@ -1529,3 +1529,7 @@ func (m *mockBuiltinRegistry) Keys(pluginType consts.PluginType) []string {
 		"hana-database-plugin",
 	}
 }
+
+func (m *mockBuiltinRegistry) Contains(name string, pluginType consts.PluginType) bool {
+	return false
+}

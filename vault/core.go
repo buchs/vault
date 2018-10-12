@@ -396,6 +396,7 @@ type Core struct {
 }
 
 type BuiltinRegistry interface {
+	Contains(name string, pluginType consts.PluginType) bool
 	Get(name string, pluginType consts.PluginType) (func() (interface{}, error), bool)
 	Keys(pluginType consts.PluginType) []string
 }

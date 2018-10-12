@@ -122,7 +122,7 @@ func (c *PluginCatalog) Set(ctx context.Context, name string, pluginType consts.
 
 	entry := &pluginutil.PluginRunner{
 		Name:    name,
-		Type:    pluginType.String(),
+		Type:    pluginType.String(), // TODO review all the places where you made a plugintype a string and see if you can use the const instead
 		Command: command,
 		Args:    args,
 		Env:     env,

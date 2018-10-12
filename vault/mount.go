@@ -1021,6 +1021,13 @@ func (c *Core) setupMounts(ctx context.Context) error {
 		backend, err = c.newLogicalBackend(ctx, entry, sysView, view)
 		if err != nil {
 			c.logger.Error("failed to create mount entry", "path", entry.Path, "error", err)
+			if !c.builtinRegistry.Contains(entry.Type, consts.PluginTypeSecrets) {
+				// If we encounter an error instantiating the backend due to an error,
+				// skip backend initialization but register the entry to the mount table
+				// to preserve storage and path.
+				c.logger.Warn("skipping plugin-based mount entry", "path", entry.Path)
+				goto ROUTER_MOUNT
+			}
 			return errLoadMountsFailed
 		}
 		if backend == nil {
@@ -1050,6 +1057,7 @@ func (c *Core) setupMounts(ctx context.Context) error {
 			backend = nil
 		}
 
+	ROUTER_MOUNT:
 		// Mount the backend
 		err = c.router.Mount(backend, entry.Path, entry, view)
 		if err != nil {

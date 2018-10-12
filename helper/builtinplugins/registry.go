@@ -154,6 +154,15 @@ func (r *registry) Keys(pluginType consts.PluginType) []string {
 	return keys
 }
 
+func (r *registry) Contains(name string, pluginType consts.PluginType) bool {
+	for _, key := range r.Keys(pluginType) {
+		if key == name {
+			return true
+		}
+	}
+	return false
+}
+
 func toFunc(ifc interface{}) func() (interface{}, error) {
 	return func() (interface{}, error) {
 		return ifc, nil
