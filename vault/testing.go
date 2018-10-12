@@ -180,6 +180,8 @@ func testCoreConfig(t testing.T, physicalBackend physical.Backend, logger log.Lo
 	noopBackends["noop"] = func(ctx context.Context, config *logical.BackendConfig) (logical.Backend, error) {
 		b := new(framework.Backend)
 		b.Setup(ctx, config)
+		// TODO it may be necessary to pass in what type is used here.
+		b.BackendType = logical.TypeCredential
 		return b, nil
 	}
 	noopBackends["http"] = func(ctx context.Context, config *logical.BackendConfig) (logical.Backend, error) {

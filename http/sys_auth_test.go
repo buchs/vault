@@ -72,9 +72,6 @@ func TestSysEnableAuth(t *testing.T) {
 	defer ln.Close()
 	TestServerAuth(t, addr, token)
 
-	// TODO what I don't understand is why this test thinks that there would be a plugin
-	// named noop in the catalog in the first place. But there IS one being found with the map,
-	// but it has no TypeCredential for its backend type so that's why this is failing.
 	resp := testHttpPost(t, token, addr+"/v1/sys/auth/foo", map[string]interface{}{
 		"type":        "noop",
 		"description": "foo",
