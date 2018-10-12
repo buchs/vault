@@ -328,7 +328,7 @@ func TestSystemBackend_mount_invalid(t *testing.T) {
 	if err != logical.ErrInvalidRequest {
 		t.Fatalf("err: %v", err)
 	}
-	if resp.Data["error"] != `unknown backend type: "nope"` {
+	if resp.Data["error"] != `plugin not found in the catalog: nope` {
 		t.Fatalf("bad: %v", resp)
 	}
 }
@@ -1488,7 +1488,7 @@ func TestSystemBackend_enableAuth_invalid(t *testing.T) {
 	if err != logical.ErrInvalidRequest {
 		t.Fatalf("err: %v", err)
 	}
-	if resp.Data["error"] != `cannot mount "nope" of type "unknown" as an auth backend` {
+	if resp.Data["error"] != `plugin not found in the catalog: nope` {
 		t.Fatalf("bad: %v", resp)
 	}
 }
