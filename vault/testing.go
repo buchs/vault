@@ -645,7 +645,7 @@ func (n *rawHTTP) Setup(ctx context.Context, config *logical.BackendConfig) erro
 }
 
 func (n *rawHTTP) Type() logical.BackendType {
-	return logical.TypeUnknown
+	return logical.TypeLogical
 }
 
 func GenerateRandBytes(length int) ([]byte, error) {
