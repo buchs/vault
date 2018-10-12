@@ -30,13 +30,13 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 	}{
 		{
 			"too_many_args",
-			[]string{"foo", "bar"},
+			[]string{"foo", "bar", "fizz"},
 			"Too many arguments",
 			1,
 		},
 		{
 			"no_plugin_exist",
-			[]string{"not-a-real-plugin-like-ever"},
+			[]string{"not-a-real-plugin-like-ever", consts.PluginTypeCredential.String()},
 			"Error reading plugin",
 			2,
 		},
@@ -86,7 +86,7 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 		cmd.client = client
 
 		code := cmd.Run([]string{
-			pluginName,
+			pluginName, consts.PluginTypeCredential.String(),
 		})
 		if exp := 0; code != exp {
 			t.Errorf("expected %d to be %d", code, exp)
@@ -118,7 +118,7 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 
 		code := cmd.Run([]string{
 			"-field", "builtin",
-			pluginName,
+			pluginName, consts.PluginTypeCredential.String(),
 		})
 		if exp := 0; code != exp {
 			t.Errorf("expected %d to be %d", code, exp)
@@ -140,7 +140,7 @@ func TestPluginInfoCommand_Run(t *testing.T) {
 		cmd.client = client
 
 		code := cmd.Run([]string{
-			"my-plugin",
+			"my-plugin", consts.PluginTypeCredential.String(),
 		})
 		if exp := 2; code != exp {
 			t.Errorf("expected %d to be %d", code, exp)
